@@ -1,0 +1,51 @@
+function armies(input) {
+    let army = {};
+    input.forEach(element => {
+            if (element.includes("arrives")) {
+                let indexOfArrives = element.indexOf(`arrives`);
+                let name = element.slice(0, indexOfArrives).trim();
+                if (!army.hasOwnProperty(name)) {
+                    army[name] = {};
+                }
+            } else if (element.includes("+")) {
+                let [armyName, quantity] = element.split(` + `);
+                let key = Object.keys(army);
+                for (let keys of key) {
+                    let token = Object.keys(army[keys]);
+                    if (token.includes(armyName)) {
+                        quantity = Number(quantity);
+                        army[keys][armyName] += quantity;
+                    }
+                }
+            } else if (element.includes(`defeated`)) {
+                let indexOfDefeated = element.indexOf(`defeated`);
+                let nameOfLeader = element.slice(0, indexOfDefeated).trim();
+                delete army[nameOfLeader];
+            } else {
+                element = element.split(`: `);
+                let [leader, arg] = element;
+                let [armyName, quantity] = arg.split(`, `);
+                if (army.hasOwnProperty(leader)) {
+                    let token = army[leader];
+                    if (!token.hasOwnProperty(armyName)) {
+                        army[leader][armyName] = Number(quantity);
+                    }
+                }
+            }
+        }
+    );
+    let totalValues = Object.entries(army);
+    totalValues.forEach(element => {
+        let totalPoints = Object.values(element[1]).reduce((a, b) => a + b);
+        element[1] = totalPoints;
+    })
+    totalValues.sort((a, b) => b[1] - a[1]);
+    totalValues.forEach(element => {
+        let [leaderName, totalPower] = element;
+        console.log(`${leaderName}: ${totalPower}`);
+        let personalArmy = Object.entries(army[leaderName]);
+        personalArmy.sort((a, b) => b[1] - a[1])
+            .forEach(x => console.log(`>>> ${x[0]} - ${x[1]}`));
+
+    });
+}
